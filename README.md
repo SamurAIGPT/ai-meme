@@ -6,7 +6,7 @@
 
 **GitHub Repository:** [github.com/SamurAIGPT/ai-meme](https://github.com/SamurAIGPT/ai-meme)
 
-**Live Demo:** [ai-meme-studio.vercel.app](https://ai-meme-studio.vercel.app)
+**Live Demo:** [ai-meme-studio.vercel.app](https://cdn.muapi.ai/data/2/666615654127/Screenshot_2026-05-21_185058.png)
 
 Sign in with Google to explore the video generation studio, image meme creator, gallery archive, and credit purchase flows directly.
 
