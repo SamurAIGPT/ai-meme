@@ -6,7 +6,7 @@
 
 **GitHub Repository:** [github.com/SamurAIGPT/ai-meme](https://github.com/SamurAIGPT/ai-meme)
 
-**Live Demo:** [ai-meme-studio.vercel.app](https://cdn.muapi.ai/data/2/666615654127/Screenshot_2026-05-21_185058.png)
+**Live Demo:** [ai-meme-studio.vercel.app](https://ai-meme-studio.vercel.app)
 
 Sign in with Google to explore the video generation studio, image meme creator, gallery archive, and credit purchase flows directly.
 
@@ -23,7 +23,7 @@ AI Meme Studio is a production-ready, highly-optimized AI web application. Out o
 - **Responsive & Polished UX** — Clean dark/light theme interface with smooth transitions and a premium feel on both desktop and mobile.
 - **Extensible API** — Easily swap or adapt underlying model endpoints without breaking layout styling.
 
-![AI Meme Studio](https://cdn.muapi.ai/apps/AI_MEME.png)
+![AI Meme Studio](https://cdn.muapi.ai/data/2/666615654127/Screenshot_2026-05-21_185058.png)
 
 ## ✨ Core Features
 
