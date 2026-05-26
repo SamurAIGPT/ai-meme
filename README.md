@@ -1,14 +1,17 @@
-# 🎭 AI Meme Studio — Viral Meme & AI Video Generator SaaS
+# 🎭 AI Meme Studio — Open-Source AI Meme & Viral Short Video Generator SaaS
 
-> **A fully production-ready AI SaaS for generating viral memes and short AI videos.** Built with Next.js (App Router), this application ships as a self-contained SaaS boilerplate with user authentication, credit billing, and a beautiful multi-model AI generation interface powered by the MuAPI engine.
+> **Generate viral memes and short AI videos in seconds with Veo 3.1, Gemini Omni, Wan2.7, GPT-Image-2, and Nano Banana 2.** A production-ready, self-hostable Next.js SaaS boilerplate with smart multi-model routing — purpose-built for creators, marketers, social media managers, and brand teams. Powered by the MuAPI AI engine.
+
+**Tech stack:** Next.js 14 (App Router) · Prisma · PostgreSQL · NextAuth (Google OAuth) · Stripe · Tailwind CSS · Multi-model routing · MuAPI
+**Use cases:** TikTok meme videos · Instagram Reels · YouTube Shorts · Twitter/X virality · Brand meme marketing · UGC short-form content · Discord stickers · Reddit posts · Social media campaigns
 
 ## 🌐 Project Repository
 
-**GitHub Repository:** [github.com/SamurAIGPT/ai-meme](https://github.com/SamurAIGPT/ai-meme)
+**GitHub Repository:** [github.com/SamurAIGPT/ai-meme-generator](https://github.com/SamurAIGPT/ai-meme-generator)
 
-**Live Demo:** [ai-meme-studio.vercel.app](https://ai-meme-umber.vercel.app/)
+**Live Demo:** [ai-meme-umber.vercel.app](https://ai-meme-umber.vercel.app/)
 
-Sign in with Google to explore the video generation studio, image meme creator, gallery archive, and credit purchase flows directly.
+Sign in with Google to explore the video generation studio, image meme creator, gallery archive, and credit purchase flows.
 
 ---
 
