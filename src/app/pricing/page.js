@@ -1,186 +1,121 @@
 "use client";
 
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { FaCheck } from "react-icons/fa";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { FaCheck, FaInfoCircle } from "react-icons/fa";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
-export default function PricingPage() {
-  const { data: session } = useSession();
-  const [loading, setLoading] = useState(null);
+const PLANS = [
+  { id: "basic", name: "Basic Pack", price: "$5", credits: 100, description: "Perfect for testing custom prompts and exploring styles." },
+  { id: "standard", name: "Standard Pack", price: "$10", credits: 250, description: "Ideal for regular creators wanting high resolution outputs." },
+  { id: "pro", name: "Professional Pack", price: "$20", credits: 600, description: "Designed for power users demanding batch exports and high speed.", popular: true },
+  { id: "business", name: "Business Pack", price: "$50", credits: 2000, description: "Maximum value pack for agency workflows and large volume generations." }
+];
+
+export default function Pricing() {
+  const { data: session, status } = useSession();
+  const [loadingPlan, setLoadingPlan] = useState(null);
 
   const handleCheckout = async (planId) => {
-    if (!session) {
-      signIn("google");
+    if (status !== "authenticated") {
+      toast.error("You must sign in with Google to purchase credit packages.");
       return;
     }
 
+    setLoadingPlan(planId);
     try {
-      setLoading(planId);
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId }),
-      });
-
-      if (!res.ok) throw new Error("Failed to create checkout");
-
-      const data = await res.json();
+      const { data } = await axios.post("/api/checkout", { planId });
       if (data.url) {
         window.location.href = data.url;
+      } else {
+        throw new Error("No redirection URL returned");
       }
     } catch (err) {
       console.error(err);
-      alert("Checkout error. Please try again.");
+      toast.error(err.response?.data?.error || "Failed to trigger Stripe checkout session.");
     } finally {
-      setLoading(null);
+      setLoadingPlan(null);
     }
   };
 
-  const plans = [
-    {
-      id: "starter",
-      name: "Starter Pack",
-      price: "$5.00",
-      credits: 1000,
-      description: "Great for trying out AI Meme Studio",
-      features: [
-        "1,000 meme generations (Image or Video)",
-        "All basic video & image models",
-        "Standard queue priority",
-        "High quality downloads",
-      ],
-      tag: "Starter",
-      popular: false,
-    },
-    {
-      id: "creator",
-      name: "Creator Pack",
-      price: "$10.00",
-      credits: 2000,
-      description: "Perfect for casual creators and experimenters",
-      features: [
-        "2,000 meme generations (Image or Video)",
-        "All premium video & image models",
-        "Fast processing speed",
-        "Uncapped generation lengths",
-      ],
-      tag: "Popular",
-      popular: true,
-    },
-    {
-      id: "pro",
-      name: "Pro Pack",
-      price: "$20.00",
-      credits: 4000,
-      description: "Best for active memers & community builders",
-      features: [
-        "4,000 meme generations (Image or Video)",
-        "Priority queue access",
-        "Access to early beta models",
-        "Dedicated customer support",
-      ],
-      tag: "Best Value",
-      popular: false,
-    },
-    {
-      id: "business",
-      name: "Business Pack",
-      price: "$50.00",
-      credits: 10000,
-      description: "For marketing teams and design agencies",
-      features: [
-        "10,000 meme generations (Image or Video)",
-        "Commercial usage rights",
-        "API access endpoints",
-        "Dedicated queue bandwidth",
-      ],
-      tag: "Business",
-      popular: false,
-    },
-    {
-      id: "enterprise",
-      name: "Enterprise Pack",
-      price: "$100.00",
-      credits: 20000,
-      description: "For large organizations and high volume memers",
-      features: [
-        "20,000 meme generations (Image or Video)",
-        "Custom volume API keys",
-        "SLA uptime agreement",
-        "Assigned account representative",
-      ],
-      tag: "Scale",
-      popular: false,
-    },
-  ];
-
   return (
-    <main className="flex-1 overflow-y-auto bg-zinc-50 dark:bg-black px-6 py-16 min-h-screen">
-      <div className="mx-auto max-w-4xl text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white sm:text-5xl">
-          Get More Meme Credits
-        </h1>
-        <p className="mt-4 text-neutral-500 dark:text-zinc-400 max-w-md mx-auto text-sm">
-          Top up your account with credits to generate AI meme videos and images. Each generation costs exactly 1 credit.
-        </p>
-      </div>
+    <div className="flex min-h-dvh flex-col bg-bg-page select-none text-primary-text overflow-hidden">
+      <Toaster position="top-right" />
+      <Navbar />
 
-      <div className="mx-auto mt-16 grid max-w-7xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {plans.map((plan) => (
-          <div
-            key={plan.id}
-            className={`flex flex-col justify-between p-6 rounded-2xl border transition-all ${plan.popular
-              ? "bg-zinc-900 border-orange-500 text-white shadow-lg ring-1 ring-orange-500/20"
-              : "bg-white dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 text-neutral-900 dark:text-white"
-              }`}
-          >
-            <div>
-              <div className="flex items-center justify-between gap-1">
-                <h3 className="text-lg font-bold truncate">{plan.name}</h3>
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0 ${plan.popular
-                    ? "bg-orange-500 text-white"
-                    : "bg-orange-500/10 text-orange-500"
-                    }`}
-                >
-                  {plan.tag}
-                </span>
-              </div>
-              <p className="mt-2 text-xs text-zinc-400 min-h-[32px]">{plan.description}</p>
-
-              <div className="mt-6 flex items-baseline">
-                <span className="text-3xl font-black tracking-tight">{plan.price}</span>
-                <span className="ml-1 text-[10px] text-zinc-400">/ one-time</span>
-              </div>
-
-              <div className="mt-6 py-2.5 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-                <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Credits Included</span>
-                <span className="text-base font-bold text-orange-500">{plan.credits.toLocaleString()} cr</span>
-              </div>
-
-              <ul className="mt-6 space-y-3 border-t border-zinc-100 dark:border-zinc-800 pt-5">
-                {plan.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-[11px] text-zinc-600 dark:text-zinc-300">
-                    <FaCheck className="mt-0.5 text-orange-500 flex-shrink-0 text-[8px]" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <button
-              onClick={() => handleCheckout(plan.id)}
-              disabled={loading !== null}
-              className={`mt-8 w-full py-2.5 font-semibold text-xs rounded-xl transition-all active:scale-[0.98] ${plan.popular
-                ? "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg shadow-orange-500/25"
-                : "bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {loading === plan.id ? "Redirecting..." : `Buy ${plan.name}`}
-            </button>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-12 sm:px-6 lg:px-8 flex flex-col gap-10 overflow-y-auto scrollbar-subtle items-center">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full mb-1">
+            <FaInfoCircle className="text-primary text-xs" />
+            <span className="text-[10px] font-black text-primary uppercase tracking-widest">Pricing Plans</span>
           </div>
-        ))}
-      </div>
-    </main>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight uppercase">Buy Credits Packs</h1>
+          <p className="text-xs sm:text-sm text-secondary-text max-w-lg leading-relaxed">
+            Purchase flexible credit packages to perform high-resolution predictions. Keep all profits — we handle AI infrastructure.
+          </p>
+        </div>
+
+        {/* Pricing Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+          {PLANS.map((plan) => (
+            <div
+              key={plan.id}
+              className={`relative bg-bg-card border rounded-lg p-6 flex flex-col justify-between gap-6 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
+                plan.popular ? "border-primary shadow-xl shadow-primary/5 scale-105" : "border-divider/50 shadow-md"
+              }`}
+            >
+              {plan.popular && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[9px] font-black uppercase px-3 py-1 rounded-full tracking-wider shadow">
+                  Most Popular
+                </span>
+              )}
+
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-extrabold uppercase tracking-wide text-primary-text">{plan.name}</h3>
+                  <p className="text-2xl font-black tracking-tight text-white">{plan.price}</p>
+                </div>
+                
+                <div className="text-xs bg-bg-page/50 border border-divider/30 p-3 rounded text-center font-extrabold text-primary">
+                  {plan.credits} Art Credits
+                </div>
+
+                <p className="text-xs text-secondary-text leading-relaxed font-medium min-h-[3rem]">{plan.description}</p>
+                
+                <ul className="space-y-2 border-t border-divider/30 pt-4 text-xs font-semibold text-secondary-text">
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="text-primary text-[10px]" />
+                    <span>Dynamic aspect ratios</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="text-primary text-[10px]" />
+                    <span>HD image downloads</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FaCheck className="text-primary text-[10px]" />
+                    <span>No subscription required</span>
+                  </li>
+                </ul>
+              </div>
+
+              <button
+                onClick={() => handleCheckout(plan.id)}
+                disabled={loadingPlan !== null}
+                className={`w-full py-3 rounded-full text-xs font-bold transition-all shadow-md cursor-pointer select-none active:scale-[0.98] ${
+                  plan.popular ? "bg-primary text-white hover:bg-primary-hover shadow-primary/15" : "bg-bg-page hover:bg-bg-card text-primary-text border border-divider"
+                }`}
+              >
+                {loadingPlan === plan.id ? "Loading checkout..." : "Purchase Credits"}
+              </button>
+            </div>
+          ))}
+        </div>
+      </main>
+
+      <Footer />
+    </div>
   );
 }
