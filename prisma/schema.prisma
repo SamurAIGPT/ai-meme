@@ -69,7 +69,15 @@ model Creation {
   title        String?
   type         String?
   url          String?  @db.Text
-  duration     String?
+  duration     Int?
+  resultUrl    String?  @db.Text
+  numClips     Int?
+  quality      String?
+  audioFiles   String[]
+  videoFiles   String[]
+  model        String?
+  lastImage    String?  @db.Text
+  imagesList   String[]
   creditCost   Int      @default(1)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
