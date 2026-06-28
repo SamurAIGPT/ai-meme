@@ -156,7 +156,7 @@ export const AIService = {
         type: "video",
         imageUrl: firstImage || null,
         inputImages: hasImages ? JSON.stringify(imagesList) : null,
-        duration: duration ? duration.toString() : null,
+        duration: duration ? parseInt(duration, 10) : null,
         resolution: resolution,
         mode: model,
         creditCost: cost,
