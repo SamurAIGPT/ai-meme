@@ -13,6 +13,8 @@
 
 > 🎨 **[Explore 50+ more open-source AI apps →](https://github.com/Anil-matcha/awesome-generative-ai-apps)**
 
+https://github.com/user-attachments/assets/7b60581d-356f-4eb6-9564-7540460b527b
+
 ## 🌐 Project Repository
 
 **GitHub Repository:** [github.com/SamurAIGPT/ai-meme-generator](https://github.com/SamurAIGPT/ai-meme-generator)
