@@ -289,11 +289,8 @@ export default function VideoGenerationPage() {
   };
 
   const pollStatus = (requestId) => {
-    let attempts = 0;
+    setStatusMessage("Generating video...");
     const interval = setInterval(async () => {
-      attempts++;
-      setStatusMessage(`Generating video (Polling attempt ${attempts})...`);
-
       try {
         const res = await fetch(`/api/creations?requestId=${requestId}`);
         if (!res.ok) throw new Error("Failed to fetch status");

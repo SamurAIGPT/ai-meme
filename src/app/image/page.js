@@ -136,11 +136,8 @@ export default function ImageGenerationPage() {
   };
 
   const pollStatus = (requestId) => {
-    let attempts = 0;
+    setStatusMessage("Generating image...");
     const interval = setInterval(async () => {
-      attempts++;
-      setStatusMessage(`Generating image (Polling attempt ${attempts})...`);
-
       try {
         const res = await fetch(`/api/creations?requestId=${requestId}`);
         if (!res.ok) throw new Error("Failed to fetch status");
