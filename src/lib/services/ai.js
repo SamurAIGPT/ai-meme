@@ -77,12 +77,16 @@ export const AIService = {
     return 1;
   },
 
-  async generateVideo(userId, { model, prompt, imageUrl, lastImageUrl, imagesList = [], aspectRatio, duration, resolution, mode, generateAudio }) {
-    const cost = this.computeCreditCost("video", { model, resolution, duration, generateAudio });
-    await UserService.deductCredits(userId, cost);
+  async generateVideo(userId, { model, prompt, imageUrl, lastImageUrl, imagesList = [], aspectRatio, duration, resolution, mode, generateAudio }, customApiKey = null) {
+    const isUsingCustomKey = Boolean(customApiKey && customApiKey.trim().length > 0);
+    const cost = isUsingCustomKey ? 0 : this.computeCreditCost("video", { model, resolution, duration, generateAudio });
 
-    const apiKey = config.ai.apiKey;
-    if (!apiKey) throw new Error("MUAPIAPP_API_KEY is not configured");
+    if (!isUsingCustomKey && cost > 0) {
+      await UserService.deductCredits(userId, cost);
+    }
+
+    const apiKey = isUsingCustomKey ? customApiKey.trim() : config.ai.apiKey;
+    if (!apiKey) throw new Error("API Key is not configured");
 
     let endpoint = "";
     let payload = {
@@ -136,13 +140,17 @@ export const AIService = {
 
     if (!submitRes.ok) {
       const errorText = await submitRes.text();
-      await UserService.addCredits(userId, cost);
+      if (!isUsingCustomKey && cost > 0) {
+        await UserService.addCredits(userId, cost);
+      }
       throw new Error(`API Submission Failed: ${submitRes.status} ${errorText}`);
     }
 
     const { request_id } = await submitRes.json();
     if (!request_id) {
-      await UserService.addCredits(userId, cost);
+      if (!isUsingCustomKey && cost > 0) {
+        await UserService.addCredits(userId, cost);
+      }
       throw new Error("No request_id received from API");
     }
 
@@ -166,12 +174,16 @@ export const AIService = {
     return creation;
   },
 
-  async generateImage(userId, { modelFamily, prompt, imagesList = [], aspectRatio, resolution, quality, googleSearch }) {
-    const cost = this.computeCreditCost("image", { modelFamily, resolution, quality });
-    await UserService.deductCredits(userId, cost);
+  async generateImage(userId, { modelFamily, prompt, imagesList = [], aspectRatio, resolution, quality, googleSearch }, customApiKey = null) {
+    const isUsingCustomKey = Boolean(customApiKey && customApiKey.trim().length > 0);
+    const cost = isUsingCustomKey ? 0 : this.computeCreditCost("image", { modelFamily, resolution, quality });
 
-    const apiKey = config.ai.apiKey;
-    if (!apiKey) throw new Error("MUAPIAPP_API_KEY is not configured");
+    if (!isUsingCustomKey && cost > 0) {
+      await UserService.deductCredits(userId, cost);
+    }
+
+    const apiKey = isUsingCustomKey ? customApiKey.trim() : config.ai.apiKey;
+    if (!apiKey) throw new Error("API Key is not configured");
 
     let endpoint = "";
     let payload = {
@@ -227,13 +239,17 @@ export const AIService = {
 
     if (!submitRes.ok) {
       const errorText = await submitRes.text();
-      await UserService.addCredits(userId, cost);
+      if (!isUsingCustomKey && cost > 0) {
+        await UserService.addCredits(userId, cost);
+      }
       throw new Error(`API Submission Failed: ${submitRes.status} ${errorText}`);
     }
 
     const { request_id } = await submitRes.json();
     if (!request_id) {
-      await UserService.addCredits(userId, cost);
+      if (!isUsingCustomKey && cost > 0) {
+        await UserService.addCredits(userId, cost);
+      }
       throw new Error("No request_id received from API");
     }
 
@@ -295,19 +311,21 @@ export const AIService = {
           error: errorMsg,
         }
       });
-      // Refund the exact credits that were charged
-      await UserService.addCredits(creation.userId, creation.creditCost ?? 1);
+      // Refund the exact credits that were charged (only if creditCost > 0)
+      if (creation.creditCost > 0) {
+        await UserService.addCredits(creation.userId, creation.creditCost);
+      }
       return { status: "failed", error: updated.error };
     }
 
     return { status: "processing" };
   },
 
-  async checkStatus(requestId, userId) {
+  async checkStatus(requestId, userId, customApiKey = null) {
     const res = await this.processResult(requestId, {});
     if (res && res.status !== "processing") return res;
 
-    const apiKey = config.ai.apiKey;
+    const apiKey = (customApiKey && customApiKey.trim().length > 0) ? customApiKey.trim() : config.ai.apiKey;
     if (!apiKey) throw new Error("API Key is not configured");
 
     try {

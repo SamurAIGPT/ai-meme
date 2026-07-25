@@ -12,22 +12,28 @@ export async function POST(req) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { model, prompt, imageUrl, lastImageUrl, imagesList, aspectRatio, duration, resolution, mode, generateAudio } = await req.json();
+    const body = await req.json();
+    const { model, prompt, imageUrl, lastImageUrl, imagesList, aspectRatio, duration, resolution, mode, generateAudio } = body;
+
+    const headerApiKey = req.headers.get("x-custom-api-key");
+    const customApiKey = headerApiKey || body.customApiKey || session.user.customApiKey || null;
+    const isUsingCustomKey = Boolean(customApiKey && customApiKey.trim().length > 0);
 
     // Compute the real cost before checking balance
-    const cost = AIService.computeCreditCost("video", { model, resolution, duration, generateAudio });
+    const cost = isUsingCustomKey ? 0 : AIService.computeCreditCost("video", { model, resolution, duration, generateAudio });
 
-    // Check credits
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { credits: true }
-    });
+    if (!isUsingCustomKey) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { credits: true }
+      });
 
-    if (!user || user.credits < cost) {
-      return new NextResponse(
-        `Insufficient credits. This generation costs ${cost} credits but you only have ${user?.credits ?? 0}.`,
-        { status: 400 }
-      );
+      if (!user || user.credits < cost) {
+        return new NextResponse(
+          `Insufficient credits. This generation costs ${cost} credits but you only have ${user?.credits ?? 0}.`,
+          { status: 400 }
+        );
+      }
     }
 
     if (!prompt) {
@@ -50,7 +56,7 @@ export async function POST(req) {
       resolution,
       mode,
       generateAudio
-    });
+    }, customApiKey);
 
     return NextResponse.json(creation);
   } catch (error) {

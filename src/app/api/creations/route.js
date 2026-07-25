@@ -15,8 +15,11 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const requestId = searchParams.get("requestId");
 
+    const headerApiKey = req.headers.get("x-custom-api-key");
+    const customApiKey = headerApiKey || session.user.customApiKey || null;
+
     if (requestId) {
-      const statusData = await AIService.checkStatus(requestId, session.user.id);
+      const statusData = await AIService.checkStatus(requestId, session.user.id, customApiKey);
       return NextResponse.json(statusData);
     }
 
